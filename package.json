@@ -1,0 +1,29 @@
+{
+  "name": "es6views",
+  "version": "0.0.1",
+  "description": "View Engine for ExpressJS. Write your views using ES6 Template Strings. Simple, fast, extensible.",
+  "main": "layout.es6",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DZNS/ES6Views.git"
+  },
+  "keywords": [
+    "view",
+    "engine",
+    "express",
+    "simple",
+    "ES6",
+    "extend",
+    "subclass",
+    "basic"
+  ],
+  "author": "Nikhil Nigade",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DZNS/ES6Views/issues"
+  },
+  "homepage": "https://github.com/DZNS/ES6Views#readme"
+}
