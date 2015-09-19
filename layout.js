@@ -31,7 +31,7 @@ var ModelView = (function () {
         key: "data",
         set: function set(newData) {
             this._data = newData;
-            if (this._data) this.parse();else this._markup = undefined;
+            this._markup = undefined;
         },
         get: function get() {
             return this._data;
@@ -39,7 +39,9 @@ var ModelView = (function () {
     }, {
         key: "markup",
         get: function get() {
-            return this._markup.trim();
+            if (!this._markup) this.parse();
+
+            return (this._markup || "").trim();
         }
     }, {
         key: "minified",

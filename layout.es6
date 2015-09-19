@@ -8,9 +8,7 @@ class ModelView {
 
     set data(newData) {
         this._data = newData;
-        if(this._data) this.parse();
-        else 
-            this._markup = undefined;
+        this._markup = undefined;
     }
 
     get data() {
@@ -18,7 +16,10 @@ class ModelView {
     }
 
     get markup() {
-        return this._markup.trim();
+        if(!this._markup)
+            this.parse();
+
+        return (this._markup || "").trim();
     }
 
     get minified() {
