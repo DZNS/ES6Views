@@ -1,8 +1,8 @@
 {
   "name": "es6views",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "View Engine for ExpressJS. Write your views using ES6 Template Strings. Simple, fast, extensible.",
-  "main": "layout.es6",
+  "main": "layout.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
