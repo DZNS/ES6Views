@@ -83,8 +83,9 @@ function viewEngine(app) {
         delete options["_locals"]; //circular
 
         var current = new layout(options);
+        var env = process.env.NODE_ENV;
         
-        callback(undefined, current.minified);
+        callback(undefined, (env == "dev" || env == "development") ? current.markup : current.minified);
         
     });
 
