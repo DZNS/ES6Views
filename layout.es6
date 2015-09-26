@@ -23,7 +23,7 @@ class ModelView {
     }
 
     get minified() {
-        return this.markup.replace(/\r?\n?/gim, "").replace(/\s{2,10000}/gim,"");
+        return ModelView.minify(this.markup);
     }
 
     parse() {
@@ -32,6 +32,10 @@ class ModelView {
 
         return undefined;
 
+    }
+
+    static minify(html) {
+        return html.replace(/\r?\n?/gim, "").replace(/\s{2,10000}/gim,"");
     }
 
 }
@@ -78,14 +82,22 @@ function viewEngine(app) {
 
     app.engine('es6', function (filePath, options, callback) {
         
+        var partial = options.renderPartial;
         var layout = require(filePath);
 
         delete options["_locals"]; //circular
 
         var current = new layout(options);
         var env = process.env.NODE_ENV;
+        var isDev = (env == "dev" || env == "development");
+
+        if(partial) {
+            var markup = current[partial](options);
+            callback(undefined, isDev ? markup : ModelView.minify(markup));
+            return;
+        }
         
-        callback(undefined, (env == "dev" || env == "development") ? current.markup : current.minified);
+        callback(undefined, isDev ? current.markup : current.minified);
         
     });
 

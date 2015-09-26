@@ -46,7 +46,12 @@ var ModelView = (function () {
     }, {
         key: "minified",
         get: function get() {
-            return this.markup.replace(/\r?\n?/gim, "").replace(/\s{2,10000}/gim, "");
+            return ModelView.minify(this.markup);
+        }
+    }], [{
+        key: "minify",
+        value: function minify(html) {
+            return html.replace(/\r?\n?/gim, "").replace(/\s{2,10000}/gim, "");
         }
     }]);
 
@@ -98,13 +103,22 @@ function viewEngine(app) {
 
     app.engine('es6', function (filePath, options, callback) {
 
+        var partial = options.renderPartial;
         var layout = require(filePath);
 
         delete options["_locals"]; //circular
 
         var current = new layout(options);
+        var env = process.env.NODE_ENV;
+        var isDev = env == "dev" || env == "development";
 
-        callback(undefined, current.minified);
+        if (partial) {
+            var markup = current[partial](options);
+            callback(undefined, isDev ? markup : ModelView.minify(markup));
+            return;
+        }
+
+        callback(undefined, isDev ? current.markup : current.minified);
     });
 }
 
