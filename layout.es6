@@ -97,7 +97,7 @@ function viewEngine(app) {
             return;
         }
         
-        callback(undefined, isDev ? current.markup : current.minified);
+        callback(undefined, current.markup);
         
     });
 
