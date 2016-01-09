@@ -45,8 +45,11 @@ class Layout extends ModelView {
     constructor(locals) {
 
         super(locals||{});
+        
         this._locals = locals;
-        this.parse();
+
+        if(!this._locals.renderPartial)
+            this.parse()
 
     }
 
@@ -84,7 +87,6 @@ function viewEngine(app) {
         
         var partial = options.renderPartial;
         var layout = require(filePath);
-
         delete options["_locals"]; //circular
 
         var current = new layout(options);
@@ -97,7 +99,7 @@ function viewEngine(app) {
             return;
         }
         
-        callback(undefined, current.markup);
+        callback(undefined, isDev ? current.markup : current.minified);
         
     });
 
