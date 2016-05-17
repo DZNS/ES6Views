@@ -97,11 +97,11 @@ function viewEngine(app) {
 
         if(partial) {
             var markup = current[partial](options);
-            callback(undefined, isDev ? markup : ModelView.minify(markup));
+            callback(undefined, markup);
             return;
         }
         
-        callback(undefined, isDev ? current.markup : current.minified);
+        callback(undefined, current.markup);
         
     });
 
