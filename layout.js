@@ -107,6 +107,8 @@ function viewEngine(app) {
 
 }
 
-export {ModelView as ModelView}
-export {Layout as Layout}
-export {viewEngine as viewEngine}
+module.exports = {
+    ModelView,
+    Layout,
+    viewEngine
+}
