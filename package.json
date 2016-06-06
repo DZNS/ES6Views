@@ -1,6 +1,6 @@
 {
   "name": "es6views",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "View Engine for ExpressJS. Write your views using ES6 Template Strings. Simple, fast, extensible.",
   "main": "layout.js",
   "scripts": {
@@ -25,5 +25,11 @@
   "bugs": {
     "url": "https://github.com/DZNS/ES6Views/issues"
   },
-  "homepage": "https://github.com/DZNS/ES6Views#readme"
+  "bin": {
+    "es6views": "bin/parser"
+  },
+  "homepage": "https://github.com/DZNS/ES6Views#readme",
+  "dependencies": {
+    "commander": "^2.9.0"
+  }
 }

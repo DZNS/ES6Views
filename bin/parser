@@ -1,0 +1,62 @@
+#! /usr/bin/env node
+'use strict';
+
+let program = require('commander')
+let pkg = require('../package.json')
+let parser = require('../layout').parser
+let path = require('path')
+let fs = require('fs')
+
+const PWD = process.env.PWD
+let output
+const filename = process.argv[2]
+let file = filename
+
+const getVal = function(param, eparam) {
+  let idx = process.argv.indexOf(param)
+  if(idx < 0)
+    idx = process.argv.indexOf(eparam)
+  return process.argv[idx + 1]
+}
+ 
+program
+  .version(pkg.version)
+  .option('-o, --output', 'Define output file path. Extension will be .html')
+  .option('-e, --extension', 'When using -o, you can use -e to define custom output extension. Ignored if -o is omitted.')
+  .option('-d, --data', 'Optionally load JSON data from a file at the specified path. This data is passed to the parser for your view to use.')
+  .parse(process.argv)
+
+if(!file || !file.length)
+  throw new Error("Please specific the file to parse.")
+
+file = path.basename(file) === file ? process.env.PWD + '/' + file : file
+
+{
+  if (program.output) 
+    output = getVal('-o', '--output')
+  else 
+    output = path.basename(filename, '.es6')
+
+  if (output &&  program.extension) 
+    output += "." + getVal('-e', '--extension')
+  else
+    output += ".html"
+
+  output = path.basename(output) === output ? process.env.PWD + '/' + output : output
+
+  if(output && path.basename(output) === output)
+    output = PWD + '/' + output
+}
+
+const data = program.data ? require(program.data) : {}
+
+parser(file, data, (err, markup) => {
+  if(err)
+    throw err
+
+  fs.writeFile(output, markup, (errx) => {
+    if(errx)
+      throw errx
+    console.log("Saved output to ", output)
+  })
+})

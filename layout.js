@@ -74,7 +74,7 @@ class Layout extends ModelView {
         /*
          * In your layout subclass
         
-            var html = [].slice.call(arguments).join("");
+            var html = Array.prototype.slice.call(arguments).join("");
             this._markup = html;
 
         */
@@ -83,32 +83,35 @@ class Layout extends ModelView {
 
 }
 
+function parser (filePath, options, callback) {
+        
+    var partial = options.renderPartial;
+    var layout = require(filePath);
+    delete options["_locals"]; //circular
+
+    var current = new layout(options);
+    var env = process.env.NODE_ENV;
+    var isDev = (env == "dev" || env == "development");
+
+    if(partial) {
+        var markup = current[partial](options);
+        callback(undefined, markup);
+        return;
+    }
+    
+    callback(undefined, current.markup);
+    
+}
+
 function viewEngine(app) {
 
-    app.engine('es6', function (filePath, options, callback) {
-        
-        var partial = options.renderPartial;
-        var layout = require(filePath);
-        delete options["_locals"]; //circular
-
-        var current = new layout(options);
-        var env = process.env.NODE_ENV;
-        var isDev = (env == "dev" || env == "development");
-
-        if(partial) {
-            var markup = current[partial](options);
-            callback(undefined, markup);
-            return;
-        }
-        
-        callback(undefined, current.markup);
-        
-    });
+    app.engine('es6', parser);
 
 }
 
 module.exports = {
     ModelView,
     Layout,
-    viewEngine
+    viewEngine,
+    parser
 }
