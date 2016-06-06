@@ -9,8 +9,6 @@ let fs = require('fs')
 
 const PWD = process.env.PWD
 let output
-const filename = process.argv[2]
-let file = filename
 
 const getVal = function(param, eparam) {
   let idx = process.argv.indexOf(param)
@@ -18,13 +16,35 @@ const getVal = function(param, eparam) {
     idx = process.argv.indexOf(eparam)
   return process.argv[idx + 1]
 }
+
+const ensureDirectoryExistence = function(filePath) {
+  var dirname = path.dirname(filePath);
+  if (directoryExists(dirname)) {
+    return true;
+  }
+  ensureDirectoryExistence(dirname);
+  fs.mkdirSync(dirname);
+}
+
+const directoryExists = function(path) {
+  try {
+    return fs.statSync(path).isDirectory();
+  }
+  catch (err) {
+    return false;
+  }
+}
  
 program
   .version(pkg.version)
   .option('-o, --output', 'Define output file path. Extension will be .html')
   .option('-e, --extension', 'When using -o, you can use -e to define custom output extension. Ignored if -o is omitted.')
   .option('-d, --data', 'Optionally load JSON data from a file at the specified path. This data is passed to the parser for your view to use.')
+  .option('-s3', 'Generate S3 compatible folder structure outputs. Output file will always be named index.html. Ignored if -o is passed.')
   .parse(process.argv)
+
+const filename = program.args.pop()
+let file = filename
 
 if(!file || !file.length)
   throw new Error("Please specific the file to parse.")
@@ -32,20 +52,29 @@ if(!file || !file.length)
 file = path.basename(file) === file ? process.env.PWD + '/' + file : file
 
 {
+  
+  const AWS = program.rawArgs.indexOf('-s3') >= 0 ? true : false
+
   if (program.output) 
     output = getVal('-o', '--output')
   else 
     output = path.basename(filename, '.es6')
+  
+  if(path.basename(output) === output) {
+    if(AWS)
+      output = process.env.PWD + '/' + output + '/index'
+    else
+      output = process.env.PWD + '/' + output
+  }
 
   if (output &&  program.extension) 
     output += "." + getVal('-e', '--extension')
   else
     output += ".html"
 
-  output = path.basename(output) === output ? process.env.PWD + '/' + output : output
-
   if(output && path.basename(output) === output)
     output = PWD + '/' + output
+
 }
 
 const data = program.data ? require(program.data) : {}
@@ -53,7 +82,7 @@ const data = program.data ? require(program.data) : {}
 parser(file, data, (err, markup) => {
   if(err)
     throw err
-
+  ensureDirectoryExistence(output)
   fs.writeFile(output, markup, (errx) => {
     if(errx)
       throw errx
