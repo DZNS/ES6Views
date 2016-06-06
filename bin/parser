@@ -43,7 +43,7 @@ program
   .option('-s3', 'Generate S3 compatible folder structure outputs. Output file will always be named index.html. Ignored if -o is passed.')
   .parse(process.argv)
 
-const filename = program.args.pop()
+const filename = process.argv.find((i) => i.indexOf('.es6') >= 0)
 let file = filename
 
 if(!file || !file.length)
@@ -77,11 +77,20 @@ file = path.basename(file) === file ? process.env.PWD + '/' + file : file
 
 }
 
-const data = program.data ? require(program.data) : {}
+let data = {}
+if(program.data) {
+  let dataPath = getVal('-d', '--data')
+  if(path.basename(dataPath) === dataPath)
+    dataPath = PWD + '/' + dataPath
+  data = require(dataPath)
+}
+
+console.log(88, file)
 
 parser(file, data, (err, markup) => {
   if(err)
     throw err
+  
   ensureDirectoryExistence(output)
   fs.writeFile(output, markup, (errx) => {
     if(errx)
