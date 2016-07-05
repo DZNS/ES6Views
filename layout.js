@@ -96,11 +96,17 @@ function parser (filePath, options, callback) {
 
         if(partial) {
             var markup = current[partial](options);
-            cb(undefined, markup);
+            if(cb && reject)
+                cb(markup);
+            else
+                cb(undefined, markup)
             return;
         }
-        
-        cb(undefined, current.markup);
+            
+        if(cb && reject)
+            cb(current.markup)
+        else
+            cb(undefined, current.markup)
     }
 
     if(callback) 
