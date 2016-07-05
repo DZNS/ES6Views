@@ -85,21 +85,28 @@ class Layout extends ModelView {
 
 function parser (filePath, options, callback) {
         
-    var partial = options.renderPartial;
-    var layout = require(filePath);
-    delete options["_locals"]; //circular
+    const _parser = (cb, reject) => {
+        var partial = options.renderPartial;
+        var layout = require(filePath);
+        delete options["_locals"]; //circular
 
-    var current = new layout(options);
-    var env = process.env.NODE_ENV;
-    var isDev = (env == "dev" || env == "development");
+        var current = new layout(options);
+        var env = process.env.NODE_ENV;
+        var isDev = (env == "dev" || env == "development");
 
-    if(partial) {
-        var markup = current[partial](options);
-        callback(undefined, markup);
-        return;
+        if(partial) {
+            var markup = current[partial](options);
+            cb(undefined, markup);
+            return;
+        }
+        
+        cb(undefined, current.markup);
     }
-    
-    callback(undefined, current.markup);
+
+    if(callback) 
+        _parser(callback)
+    else
+        return new Promise(_parser)
     
 }
 
