@@ -1,11 +1,12 @@
 #! /usr/bin/env node
+/* eslint-env node, mocha */
 'use strict';
 
-let program = require('commander')
-let pkg = require('../package.json')
-let parser = require('../layout').parser
-let path = require('path')
-let fs = require('fs')
+const program = require('commander')
+const pkg = require('../package.json')
+const parser = require('../layout').parser
+const path = require('path')
+const fs = require('fs')
 
 const PWD = process.env.PWD
 let output
@@ -18,7 +19,7 @@ const getVal = function(param, eparam) {
 }
 
 const ensureDirectoryExistence = function(filePath) {
-  var dirname = path.dirname(filePath);
+  let dirname = path.dirname(filePath);
   if (directoryExists(dirname)) {
     return true;
   }
@@ -85,7 +86,7 @@ if(program.data) {
   data = require(dataPath)
 }
 
-console.log(88, file)
+// console.log(88, file)
 
 parser(file, data, (err, markup) => {
   if(err)
@@ -93,8 +94,10 @@ parser(file, data, (err, markup) => {
   
   ensureDirectoryExistence(output)
   fs.writeFile(output, markup, (errx) => {
-    if(errx)
+    if(errx) 
       throw errx
+    
     console.log("Saved output to ", output)
+    process.exit(0)
   })
 })
