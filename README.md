@@ -10,7 +10,7 @@ npm install --save es6views
 ### Usage
 ```js
 // where ever you setup your view engine for ExpressJS
-const esviews = new require("es6views")
+const esviews = require("es6views")
 esviews.viewEngine(app)
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'es6')
@@ -37,7 +37,7 @@ class MyLayout extends Layout {
     }
     
     header () {
-        const data = this._data
+        const data = this.data
         return `<header>${data.title}</header>`
     }
     
@@ -60,7 +60,7 @@ const MyLayout = require('./mylayout.es6')
 
 class Posts extends MyLayout {
     content () {
-        const data = this._data
+        const data = this.data
         const posts = data.posts
         
         return posts.map(post => {
@@ -75,7 +75,7 @@ module.exports = Posts
 You can then use it in your route like so:
 ```js
 router.get('/posts', (req, res) => {
-    let locals = Object.assign(res.locals, {
+    let locals = Object.assign({}, res.locals, {
         posts: posts
     })
     res.render('projects', locals)
