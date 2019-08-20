@@ -50,14 +50,22 @@ class Layout extends ModelView {
         
         this._locals = locals;
 
-        if(!this._locals.renderPartial)
-            this.parse()
+        this.setup();
 
+    }
+
+    async setup() {
+        if(!this._locals.renderPartial) {
+            if (this.parse.constructor.name === 'AsyncFunction') {}
+            else {
+                this.parse();
+            }
+        }
     }
 
     parse() {
 
-        console.log("You should write your common layout logic in a subclass of Layout. When you're done, simply call super with your rendered interstetials.");
+        throw new Error("You should write your common layout logic in a subclass of Layout. When you're done, simply call super with your rendered interstetials.");
 
         /*
          * In your View subclass
@@ -83,24 +91,30 @@ class Layout extends ModelView {
 
 }
 
-const parser = (filePath, options, callback) => {
-        
-    const _parser = (cb, reject) => {
-        let partial = options.renderPartial
-        let XLayout = require(filePath)
-        delete options["_locals"] //circular
+function parser (filePath, options, callback) {
 
-        let current = new XLayout(options)
-        let env = process.env.NODE_ENV
-        let isDev = (env == "dev" || env == "development")
+    const _parser = async (cb, reject) => {
+        let partial = options.renderPartial;
+        let layout = require(filePath);
+        delete options["_locals"]; //circular
 
-        if(partial) {
-            let markup = current[partial](options)
+        let current = new layout(options);
+        let env = process.env.NODE_ENV;
+        let isDev = (env == "dev" || env == "development");
+
+        if (partial) {
+            let markup = current[partial](options);
+
             if(cb && reject)
-                cb(markup)
+                cb(markup);
             else
                 cb(undefined, markup)
+
             return;
+        }
+        else if (current.parse.constructor.name === "AsyncFunction") {
+            console.debug("waiting for current to parse");
+            await current.parse();
         }
             
         if(cb && reject)
@@ -113,11 +127,13 @@ const parser = (filePath, options, callback) => {
         _parser(callback)
     else
         return new Promise(_parser)
-    
+
 }
 
-const viewEngine = app => {
-    app.engine('es6', parser)
+function viewEngine(app) {
+
+    app.engine('es6', parser);
+
 }
 
 module.exports = {
