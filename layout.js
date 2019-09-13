@@ -93,7 +93,8 @@ class Layout extends ModelView {
 
 function parser (filePath, options, callback) {
 
-    const _parser = async (cb, reject) => {
+    const _parser = async (cb) => {
+
         let partial = options.renderPartial;
         let layout = require(filePath);
         delete options["_locals"]; //circular
@@ -103,12 +104,17 @@ function parser (filePath, options, callback) {
         let isDev = (env == "dev" || env == "development");
 
         if (partial) {
-            let markup = current[partial](options);
+            let markup;
 
-            if(cb && reject)
-                cb(markup);
-            else
-                cb(undefined, markup)
+            try {
+                markup = current[partial](options);
+            }
+            catch (exc) {
+                cb && cb(exc);
+            }
+
+            if(markup)
+                cb(undefined, markup);
 
             return;
         }
@@ -117,10 +123,8 @@ function parser (filePath, options, callback) {
             await current.parse();
         }
             
-        if(cb && reject)
-            cb(current.markup)
-        else
-            cb(undefined, current.markup)
+        if(cb)
+            cb(undefined, current.markup);
     }
 
     if(callback) 
@@ -133,6 +137,7 @@ function parser (filePath, options, callback) {
 function viewEngine(app) {
 
     app.engine('es6', parser);
+    app.set('view engine', 'es6')
 
 }
 
