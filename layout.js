@@ -93,38 +93,46 @@ class Layout extends ModelView {
 
 function parser (filePath, options, callback) {
 
-    const _parser = async (cb) => {
+    const _parser = async (cb, reject) => {
 
         let partial = options.renderPartial;
-        let layout = require(filePath);
-        delete options["_locals"]; //circular
+        
+        try {
+            let layout = require(filePath);
+            delete options["_locals"]; //circular
 
-        let current = new layout(options);
-        let env = process.env.NODE_ENV;
-        let isDev = (env == "dev" || env == "development");
+            let current = new layout(options);
 
-        if (partial) {
-            let markup;
+            if (partial) {
+                let markup = current[partial](options);
 
-            try {
-                markup = current[partial](options);
+                if(cb && reject)
+                    cb(markup);
+                else
+                    cb(undefined, markup)
+
+                return;
             }
-            catch (exc) {
-                cb && cb(exc);
+            else if (current.parse.constructor.name === "AsyncFunction") {
+                console.debug("waiting for current to parse");
+                await current.parse();
+            }
+                
+            if(cb && reject)
+                cb(current.markup)
+            else
+                cb(undefined, current.markup)
+        }
+        catch (err) {
+
+            if (reject) {
+                reject(err);
+            }
+            else {
+                cb(err);
             }
 
-            if(markup)
-                cb(undefined, markup);
-
-            return;
         }
-        else if (current.parse.constructor.name === "AsyncFunction") {
-            console.debug("waiting for current to parse");
-            await current.parse();
-        }
-            
-        if(cb)
-            cb(undefined, current.markup);
     }
 
     if(callback) 
